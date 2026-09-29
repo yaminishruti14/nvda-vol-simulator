@@ -1,0 +1,141 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rubin Ultra Volatility Explosion Simulator</title>
+<style>
+:root{--bg:#0b0f17;--card:#141b29;--ink:#e8edf6;--mut:#8b97ad;--line:#26314a;--g:#2ee6a6;--r:#ff5d73;--b:#5b9dff;--y:#ffc857;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0f17;--card:#141b29;--ink:#e8edf6;--mut:#8b97ad;--line:#26314a;--g:#2ee6a6;--r:#ff5d73;--b:#5b9dff;--y:#ffc857}}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f3f5f9;--card:#fff;--ink:#131a29;--mut:#5d6a82;--line:#dbe1ec;--g:#0a9f6e;--r:#d6284a;--b:#2563eb;--y:#b7791f}}
+:root[data-theme="dark"]{--bg:#0b0f17;--card:#141b29;--ink:#e8edf6;--mut:#8b97ad;--line:#26314a;--g:#2ee6a6;--r:#ff5d73;--b:#5b9dff;--y:#ffc857}
+*{box-sizing:inherit}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.w{max-width:1180px;margin:0 auto;padding:16px}
+h1{margin:0;font-size:22px}header p{margin:2px 0 14px;color:var(--mut)}
+main{display:grid;grid-template-columns:300px 1fr;gap:14px}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.seg{display:flex;background:var(--bg);border-radius:10px;padding:3px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;color:var(--mut);padding:8px;border-radius:8px;font-weight:600;cursor:pointer}
+.seg button.on{background:var(--b);color:#fff}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label{display:block;font-size:12px;color:var(--mut)}
+input[type=number]{width:100%;margin-top:2px;padding:7px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+input:disabled{opacity:.5}
+.ck{display:flex;gap:6px;align-items:center;margin-top:10px;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--b)}
+.sl{margin:6px 0}.sl b{color:var(--ink)}
+svg{width:100%;height:auto;display:block;touch-action:none;cursor:crosshair}
+.gl{stroke:var(--line);stroke-width:1}.z{stroke:var(--mut);stroke-width:1.2}
+.t{fill:var(--mut);font-size:11px}.tb{fill:var(--y);font-size:11px;font-weight:600}
+.fg{fill:var(--g);opacity:.2}.fr{fill:var(--r);opacity:.2}
+.ex{fill:none;stroke:var(--ink);stroke-width:2.4}.md{fill:none;stroke:var(--b);stroke-width:2.4;stroke-dasharray:6 4}
+.sk{fill:none;stroke:var(--mut);stroke-width:1.5;stroke-dasharray:2 4}
+.be{stroke:var(--y);stroke-dasharray:4 3}.sp{stroke:var(--mut);stroke-dasharray:1 4}.px{stroke:var(--b);stroke-width:1.5}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:4px}
+.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.k div{background:var(--bg);border-radius:10px;padding:9px}.k small{color:var(--mut);display:block;font-size:11px}.k b{font-size:16px}
+.pos{color:var(--g)}.neg{color:var(--r)}
+.pre{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.pre button{text-align:left;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px;cursor:pointer;font:inherit}
+.pre button:hover{border-color:var(--b)}.pre small{display:block;color:var(--mut)}
+.warn{background:rgba(255,93,115,.12);border:1px solid var(--r);color:var(--r);border-radius:10px;padding:8px;margin-bottom:10px;font-size:12px;display:none}
+.vb{display:grid;grid-template-columns:70px 1fr 80px;gap:8px;align-items:center;margin:4px 0;font-size:12px}
+.bar{height:14px;position:relative;background:var(--bg);border-radius:4px}.bar i{position:absolute;top:0;bottom:0;border-radius:4px}
+h3{margin:0 0 8px;font-size:14px}.st{color:var(--mut);margin:8px 0 0}.fine{font-size:11px;color:var(--mut)}
+</style></head><body><div class="w">
+<header><h1>⚡ Volatility Explosion Simulator</h1><p>NVDA · "Will Rubin Ultra deliver?" · long/short straddle &amp; strangle</p></header>
+<main>
+<div>
+<section class="card">
+<div class="seg" id="dir"><button data-v="1" class="on">Long vol</button><button data-v="-1">Short vol</button></div>
+<div class="seg" id="mode"><button data-v="straddle">Straddle</button><button data-v="strangle" class="on">Strangle</button></div>
+<div class="warn" id="warn">⚠ Short volatility: loss is theoretically unlimited on the upside and very large on the downside. A gap move can far exceed the premium collected.</div>
+<div class="f" id="fields"></div>
+<label class="ck"><input type="checkbox" id="auto" checked> Price legs from IV (Black–Scholes)</label>
+<label class="ck"><input type="checkbox" id="stk"> Compare with holding 100 shares / contract</label>
+<p class="fine">Model premiums are illustrative. Replace them with live option-chain quotes for your report.</p>
+</section>
+<section class="card"><h3>Event storylines</h3><div class="pre" id="pre"></div><p class="st" id="story">Pick a storyline to jump the price, IV and timing.</p></section>
+</div>
+<div>
+<section class="card">
+<svg id="ch" viewBox="0 0 760 380"></svg>
+<div class="leg"><span>━ P/L at expiry</span><span style="color:var(--b)">┅ P/L after the event (model)</span><span style="color:var(--y)">┆ breakevens</span><span>Click/drag chart to move price</span></div>
+<div class="sl">Future stock price: <b id="pxv"></b><input type="range" id="px"></div>
+<div class="sl">Days elapsed since entry: <b id="elv"></b><input type="range" id="el" min="0" value="170"></div>
+<div class="sl">Implied vol change at event: <b id="shv"></b><input type="range" id="sh" min="-30" max="40" value="0"></div>
+</section>
+<section class="card"><div class="k" id="k"></div></section>
+<section class="card"><h3>What if volatility moves? (at the chosen price and date)</h3><div id="vt"></div></section>
+</div></main></div>
+<script>
+const $=id=>document.getElementById(id),F=id=>parseFloat($(id).value)||0;
+const N=x=>{const t=1/(1+.2316419*Math.abs(x)),p=.3989423*Math.exp(-x*x/2)*t*(.3193815+t*(-.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return x>0?1-p:p},nn=x=>.3989423*Math.exp(-x*x/2);
+function bs(S,K,T,v,r,c){if(T<=1e-4)return{p:Math.max(c?S-K:K-S,0),d:c?+(S>K):-(S<K),g:0,v:0,t:0};
+const q=v*Math.sqrt(T),d1=(Math.log(S/K)+(r+v*v/2)*T)/q,d2=d1-q,e=K*Math.exp(-r*T),c0=-S*nn(d1)*v/(2*Math.sqrt(T));
+return c?{p:S*N(d1)-e*N(d2),d:N(d1),g:nn(d1)/(S*q),v:S*nn(d1)*Math.sqrt(T)/100,t:(c0-r*e*N(d2))/365}:{p:e*N(-d2)-S*N(-d1),d:N(d1)-1,g:nn(d1)/(S*q),v:S*nn(d1)*Math.sqrt(T)/100,t:(c0+r*e*N(-d2))/365}}
+const fields=[['S','Spot price ($)',228,.5],['Kc','Call strike ($)',260,1],['Kp','Put strike ($)',200,1],['cp','Call premium ($)',0,.01],['pp','Put premium ($)',0,.01],['iv','Implied vol (%)',45,1],['T','Days to expiry',200,1],['r','Rate (%)',4,.25],['n','Contracts',1,1]];
+$('fields').innerHTML=fields.map(([i,l,v,s])=>`<label>${l}<input id="${i}" type="number" step="${s}" value="${v}"></label>`).join('');
+let dir=1,mode='strangle',lastS=0;
+const seg=(id,cb)=>$(id).onclick=e=>{const b=e.target.closest('button');if(!b)return;[...$(id).children].forEach(x=>x.classList.toggle('on',x==b));cb(b.dataset.v);draw(1)};
+seg('dir',v=>dir=+v);seg('mode',v=>mode=v);
+document.addEventListener('input',e=>{if(e.target.id=='cp'||e.target.id=='pp')$('auto').checked=false;if(e.target.type=='number'||e.target.id=='auto'||e.target.type=='range'||e.target.id=='stk')draw(e.target.type=='number'||e.target.id=='auto')});
+const fm=x=>(x<0?'-$':'$')+Math.abs(Math.round(x)).toLocaleString(),f2=x=>x.toFixed(2);
+const tk=(a,b,c)=>{const raw=(b-a)/c,m=10**Math.floor(Math.log10(raw)),f=raw/m,s=(f<1.5?1:f<3?2:f<7?5:10)*m,o=[];for(let v=Math.ceil(a/s)*s;v<=b;v+=s)o.push(+v.toFixed(6));return o};
+function draw(reprice){
+ const S=F('S'),T=Math.max(F('T'),1),iv=F('iv')/100,r=F('r')/100,M=100*Math.max(F('n'),1);
+ if(mode=='straddle'){$('Kp').value=$('Kc').value}$('Kp').disabled=mode=='straddle';
+ const Kc=F('Kc'),Kp=F('Kp');
+ if(reprice&&$('auto').checked){$('cp').value=f2(bs(S,Kc,T/365,iv,r,1).p);$('pp').value=f2(bs(S,Kp,T/365,iv,r,0).p)}
+ const cp=F('cp'),pp=F('pp'),prem=cp+pp;
+ const px=$('px');if(S!=lastS){px.min=Math.round(S*.4);px.max=Math.round(S*1.8);px.step=.5;if(!lastS)px.value=S;lastS=S}
+ $('el').max=T;if(+$('el').value>T)$('el').value=T;
+ const P=+px.value,el=+$('el').value,sh=+$('sh').value,tau=(T-el)/365;
+ $('pxv').textContent=`$${P.toFixed(1)} (${((P/S-1)*100).toFixed(1)}%)`;$('elv').textContent=`day ${el} of ${T}`;$('shv').textContent=(sh>0?'+':'')+sh+' vol pts';
+ $('warn').style.display=dir<0?'block':'none';
+ const pay=x=>dir*(Math.max(x-Kc,0)+Math.max(Kp-x,0)-prem)*M;
+ const mv=(x,s2)=>dir*(bs(x,Kc,tau,Math.max(iv+s2/100,.03),r,1).p+bs(x,Kp,tau,Math.max(iv+s2/100,.03),r,0).p-prem)*M;
+ const stock=x=>(x-S)*M;
+ const lo=S*.5,hi=S*1.6,xs=[];for(let i=0;i<=240;i++)xs.push(lo+(hi-lo)*i/240);
+ const A=xs.map(pay),B=xs.map(x=>mv(x,sh)),C=$('stk').checked?xs.map(stock):[];
+ let ymin=Math.min(0,...A,...B,...C),ymax=Math.max(0,...A,...B,...C);const pd=(ymax-ymin)*.08;ymin-=pd;ymax+=pd;
+ const W=760,H=380,L=62,R=16,Tp=14,Bm=34,X=x=>L+(x-lo)/(hi-lo)*(W-L-R),Y=y=>Tp+(ymax-y)/(ymax-ymin)*(H-Tp-Bm);
+ const path=a=>a.map((v,i)=>(i?'L':'M')+X(xs[i]).toFixed(1)+','+Y(v).toFixed(1)).join('');
+ // breakevens
+ const bes=[];for(let x=.01;x<3*S;x+=.25){const a=pay(x),b=pay(x+.25);if(a==0||a*b<0)bes.push(x+(-a/(b-a))*.25)}
+ let s=`<defs><clipPath id="ca"><rect x="${L}" y="${Tp}" width="${W-L-R}" height="${Math.max(Y(0)-Tp,0)}"/></clipPath><clipPath id="cb"><rect x="${L}" y="${Y(0)}" width="${W-L-R}" height="${Math.max(H-Bm-Y(0),0)}"/></clipPath></defs>`;
+ tk(ymin,ymax,5).forEach(v=>s+=`<line class="gl" x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}"/><text class="t" x="${L-6}" y="${Y(v)+4}" text-anchor="end">${fm(v)}</text>`);
+ tk(lo,hi,7).forEach(v=>s+=`<text class="t" x="${X(v)}" y="${H-Bm+16}" text-anchor="middle">$${v}</text>`);
+ const ar=path(A)+`L${X(hi)},${Y(0)}L${X(lo)},${Y(0)}Z`;
+ s+=`<path class="fg" clip-path="url(#ca)" d="${ar}"/><path class="fr" clip-path="url(#cb)" d="${ar}"/><line class="z" x1="${L}" x2="${W-R}" y1="${Y(0)}" y2="${Y(0)}"/>`;
+ if(C.length)s+=`<path class="sk" d="${path(C)}"/>`;
+ s+=`<path class="md" d="${path(B)}"/><path class="ex" d="${path(A)}"/>`;
+ s+=`<line class="sp" x1="${X(S)}" x2="${X(S)}" y1="${Tp}" y2="${H-Bm}"/><text class="t" x="${X(S)+3}" y="${Tp+10}">spot $${S}</text>`;
+ bes.forEach(b=>{if(b>lo&&b<hi)s+=`<line class="be gl" style="stroke:var(--y)" x1="${X(b)}" x2="${X(b)}" y1="${Tp}" y2="${H-Bm}"/><text class="tb" x="${X(b)}" y="${H-Bm-6}" text-anchor="middle">BE $${b.toFixed(1)}</text>`});
+ [[Kp,'Kp'],[Kc,'Kc']].forEach(([k,n],i)=>{if(mode=='straddle'&&i==0)return;s+=`<text class="t" x="${X(k)}" y="${Y(0)+(dir>0?-6:14)}" text-anchor="middle">${mode=='straddle'?'K':n} ${k}</text>`});
+ s+=`<line class="px" x1="${X(P)}" x2="${X(P)}" y1="${Tp}" y2="${H-Bm}"/><circle cx="${X(P)}" cy="${Y(pay(P))}" r="5" fill="var(--ink)"/><circle cx="${X(P)}" cy="${Y(mv(P,sh))}" r="5" fill="var(--b)"/>`;
+ $('ch').innerHTML=s;$('ch').dataset.g=[L,W-R,lo,hi,W];
+ // stats
+ const e=pay(P),m=mv(P,sh),c=x=>x>=0?'pos':'neg',lam=Math.sqrt(T/365);
+ const pa=k=>N((Math.log(S/k)+(r-iv*iv/2)*T/365)/(iv*lam));let pr='n/a';
+ if(bes.length>1){const ins=pa(bes[0])-pa(bes[bes.length-1]);pr=((dir>0?1-ins:ins)*100).toFixed(0)+'%'}else if(bes.length==1)pr=((dir>0?pa(bes[0]):1-pa(bes[0]))*100).toFixed(0)+'%';
+ const gc=bs(S,Kc,T/365,iv,r,1),gp=bs(S,Kp,T/365,iv,r,0),g=k=>dir*M*(gc[k]+gp[k]);
+ const mx=dir>0?[`Unlimited ↑ (or ${fm((Kp-prem)*M)} if S→0)`,fm(-prem*M)]:[fm(prem*M),`Unlimited ↑ (put side ${fm(-(Kp-prem)*M)})`];
+ const cells=[['Net '+(dir>0?'cost (debit)':'credit'),fm(prem*M)+` ($${f2(prem)}/sh)`],['Max profit',mx[0]],['Max loss',mx[1]],['Breakeven(s)',bes.map(b=>'$'+b.toFixed(1)).join(' & ')||'none'],
+ ['P/L at expiry @ price',`<span class="${c(e)}">${fm(e)}</span>`],['P/L after event (model)',`<span class="${c(m)}">${fm(m)}</span>`],
+ ['Prob. of profit (risk-neutral)',pr],['Market-implied move (1σ)',`±$${(S*iv*lam).toFixed(1)} (${(iv*lam*100).toFixed(1)}%)`],
+ ['Net delta',g('d').toFixed(1)],['Net gamma',g('g').toFixed(2)],['Net vega / vol pt',fm(g('v'))],['Net theta / day',fm(g('t'))],
+ ['Holding shares @ price',`<span class="${c(stock(P))}">${fm(stock(P))}</span>`],['Strategy vs shares',`<span class="${c(e-stock(P))}">${fm(e-stock(P))}</span>`]];
+ $('k').innerHTML=cells.map(([a,b])=>`<div><small>${a}</small><b>${b}</b></div>`).join('');
+ const sc=[-20,-5,0,5,20].map(x=>[x,mv(P,x)]),mm=Math.max(1,...sc.map(x=>Math.abs(x[1])));
+ $('vt').innerHTML=sc.map(([x,v])=>`<div class="vb"><span>${x>0?'+':''}${x} pts</span><div class="bar"><i style="left:${v<0?50-Math.abs(v)/mm*50:50}%;width:${Math.abs(v)/mm*50}%;background:var(--${v<0?'r':'g'})"></i></div><b class="${c(v)}">${fm(v)}</b></div>`).join('')+'<p class="fine">Shows vega impact: same price and date, different IV. Short-vol positions flip the sign.</p>';
+}
+$('ch').addEventListener('pointerdown',mvp);$('ch').addEventListener('pointermove',e=>e.buttons&&mvp(e));
+function mvp(e){const [L,R,lo,hi,W]=$('ch').dataset.g.split(',').map(Number),b=$('ch').getBoundingClientRect(),x=(e.clientX-b.left)/b.width*W;$('px').value=Math.min(+$('px').max,Math.max(+$('px').min,lo+(x-L)/(R-L)*(hi-lo)));draw()}
+const pres=[['🚀 Rubin Ultra delivers',.22,-8,'Ramp is on schedule and the surprise is upside, yet IV collapses once uncertainty is resolved. Vega drag trims what the price jump earns.'],
+['⏳ Slip / packaging delay',-.2,12,'Timeline slips. Price gaps down while fear pushes IV up, so both delta and vega help a long-vol book.'],
+['😐 Priced in: in line',.01,-20,'Nothing new. Price barely moves and IV crushes: the classic long-straddle loss (and a short-vol win).'],
+['📉 AI capex scare',-.32,25,'Cloud customers cut capex. A violent gap down with an IV spike: the tail that ruins short-vol sellers.']];
+$('pre').innerHTML=pres.map((p,i)=>`<button data-i="${i}">${p[0]}<small>${p[1]>0?'+':''}${p[1]*100}% price · ${p[2]>0?'+':''}${p[2]} IV pts</small></button>`).join('');
+$('pre').onclick=e=>{const b=e.target.closest('button');if(!b)return;const p=pres[b.dataset.i],T=F('T');$('px').value=F('S')*(1+p[1]);$('sh').value=p[2];$('el').value=Math.max(T-5,0);$('story').textContent=p[3];draw()};
+draw(1);
+</script></body></html>
